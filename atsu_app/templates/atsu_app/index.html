@@ -1,8 +1,12 @@
 <!DOCTYPE html>
+{% load static %}
+{% include 'atsu_app/navbar.html' %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ATSU</title>
+    <title>{% block title %}ATSU{% endblock %}</title>
+<!--    <link rel="stylesheet" href="{% static 'atsu_app/css/style.css' %}">-->
+<!--    <script src="{% static 'atsu_app/js/script.js' %}"></script>-->
 </head>
 <body>
 <p>Teddy's ATSU Tool</p>
