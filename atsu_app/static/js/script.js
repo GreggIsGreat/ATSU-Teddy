@@ -1,3 +1,20 @@
+// Toggle between login and registration forms - MUST be global for onclick
+function toggleForms(event) {
+    event.preventDefault();
+
+    const registerForm = document.getElementById('register-form');
+    const loginForm = document.getElementById('login-form');
+
+    registerForm.classList.toggle('hidden');
+    loginForm.classList.toggle('hidden');
+
+    // Clear any error messages when switching
+    const messages = document.querySelector('.auth-messages');
+    if (messages) {
+        messages.style.display = 'none';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Elements
     const form = document.getElementById('documentUploadForm');
@@ -10,8 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const uploadStatus = document.getElementById('uploadStatus');
     const uploadsLeft = document.getElementById('uploadsLeft');
     const moreBtn = document.getElementById('moreBtn');
-    const signInBtn = document.getElementById('signInBtn');
-    const signUpBtn = document.getElementById('signUpBtn');
 
     // Initialize uploads left from localStorage or default to 3
     let remainingUploads = localStorage.getItem('remainingUploads') || 3;
@@ -88,17 +103,6 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Premium features coming soon!');
     });
 
-    // Sign In/Sign Up button handlers
-    signInBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Sign In functionality coming soon!');
-    });
-
-    signUpBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Sign Up functionality coming soon!');
-    });
-
     // Form submission
     form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -126,6 +130,8 @@ document.addEventListener('DOMContentLoaded', function() {
             form.reset();
             cvFileName.textContent = 'No file chosen';
             jdFileName.textContent = 'No file chosen';
+            cvUploadBox.classList.remove('file-selected');
+            jdUploadBox.classList.remove('file-selected');
             showStatus('Documents uploaded successfully!', 'success');
 
             // Reset button state
@@ -153,9 +159,46 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    // Initialize tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+    // Initialize tooltips if Bootstrap is available
+    if (typeof bootstrap !== 'undefined') {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+
+    // Auto-hide success messages after 5 seconds
+    const successMessages = document.querySelectorAll('.auth-message.success');
+    successMessages.forEach(message => {
+        setTimeout(() => {
+            message.style.animation = 'slideDown 0.3s ease reverse';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 300);
+        }, 5000);
     });
+
+    // If there are messages (errors or success), show the modal
+    const authMessages = document.querySelector('.auth-messages');
+    if (authMessages && authMessages.children.length > 0) {
+        const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+        authModal.show();
+    }
+
+    // Password strength indicator
+    const passwordInput = document.getElementById('reg-password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+
+            // Example: minimum length check
+            if (password.length === 0) {
+                this.style.borderColor = '#ddd';
+            } else if (password.length < 8) {
+                this.style.borderColor = '#ffc107';
+            } else {
+                this.style.borderColor = '#28a745';
+            }
+        });
+    }
 });
