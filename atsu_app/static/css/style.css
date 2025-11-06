@@ -457,6 +457,18 @@ h2 {
     letter-spacing: 0.5px;
 }
 
+#socialIcons a:hover i.bi-twitter {
+    color: #1a8cd8;
+}
+
+#socialIcons a:hover i.bi-facebook {
+    color: #385899;
+}
+
+#socialIcons a:hover i.bi-instagram {
+    color: #d63384;
+}
+
 /* Responsive adjustments */
 @media (max-width: 576px) {
     .social-btn {

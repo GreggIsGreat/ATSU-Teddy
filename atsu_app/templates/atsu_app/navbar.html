@@ -52,27 +52,7 @@
                 <form method="post" action="{% url 'sign_up' %}" id="register-form" class="auth-form {% if show_login %}hidden{% endif %}">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="register">
-                    <h2><i class="bi bi-person-plus"></i> Create Account</h2>
-
-                    <!-- Social Login Buttons -->
-                    <div class="social-auth-buttons">
-                        <a href="#" class="social-btn google-btn">
-                            <i class="bi bi-google"></i>
-                            <span>Continue with Google</span>
-                        </a>
-                        <a href="#" class="social-btn facebook-btn">
-                            <i class="bi bi-facebook"></i>
-                            <span>Continue with Facebook</span>
-                        </a>
-                        <a href="#" class="social-btn github-btn">
-                            <i class="bi bi-github"></i>
-                            <span>Continue with GitHub</span>
-                        </a>
-                    </div>
-
-                    <div class="divider">
-                        <span>OR</span>
-                    </div>
+                    <h2>Sign Up</h2>
 
                     <div class="auth-form-group">
                         <label for="reg-username">Username</label>
@@ -94,7 +74,19 @@
                         <input type="password" id="reg-password-confirm" name="password_confirm" required autocomplete="new-password">
                     </div>
 
-                    <button type="submit" class="auth-submit-btn">Create Account</button>
+                    <button type="submit" class="auth-submit-btn">Sign Up</button>
+
+                    <div class="d-flex justify-content-center align-items-center gap-3 w-100 my-4" id="socialIcons">
+                        <a href="https://twitter.com" target="_blank" class="text-decoration-none" aria-label="Twitter">
+                            <i class="bi bi-twitter" style="font-size: 2rem; color: #1DA1F2; transition: all 0.3s ease"></i>
+                        </a>
+                        <a href="https://facebook.com" target="_blank" class="text-decoration-none" aria-label="Facebook">
+                            <i class="bi bi-facebook" style="font-size: 2rem; color: #4267B2; transition: all 0.3s ease"></i>
+                        </a>
+                        <a href="https://instagram.com" target="_blank" class="text-decoration-none" aria-label="Instagram">
+                            <i class="bi bi-instagram" style="font-size: 2rem; color: #E4405F; transition: all 0.3s ease"></i>
+                        </a>
+                    </div>
 
                     <div class="auth-toggle-link">
                         Already have an account? <a href="#" onclick="toggleForms(event)">Sign In</a>
@@ -105,27 +97,7 @@
                 <form method="post" action="{% url 'sign_up' %}" id="login-form" class="auth-form {% if not show_login %}hidden{% endif %}">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="login">
-                    <h2><i class="bi bi-box-arrow-in-right"></i> Welcome Back</h2>
-
-                    <!-- Social Login Buttons -->
-                    <div class="social-auth-buttons">
-                        <a href='#' class="social-btn google-btn">
-                            <i class="bi bi-google"></i>
-                            <span>Continue with Google</span>
-                        </a>
-                        <a href="#" class="social-btn facebook-btn">
-                            <i class="bi bi-facebook"></i>
-                            <span>Continue with Facebook</span>
-                        </a>
-                        <a href="#" class="social-btn github-btn">
-                            <i class="bi bi-github"></i>
-                            <span>Continue with GitHub</span>
-                        </a>
-                    </div>
-
-                    <div class="divider">
-                        <span>OR</span>
-                    </div>
+                    <h2>Welcome Back</h2>
 
                     <div class="auth-form-group">
                         <label for="login-username">Username</label>
@@ -138,6 +110,18 @@
                     </div>
 
                     <button type="submit" class="auth-submit-btn">Sign In</button>
+
+                    <div class="d-flex justify-content-center align-items-center gap-3 w-100 my-4" id="socialIcons">
+                        <a href="https://twitter.com" target="_blank" class="text-decoration-none" aria-label="Twitter">
+                            <i class="bi bi-twitter" style="font-size: 2rem; color: #1DA1F2; transition: all 0.3s ease"></i>
+                        </a>
+                        <a href="https://facebook.com" target="_blank" class="text-decoration-none" aria-label="Facebook">
+                            <i class="bi bi-facebook" style="font-size: 2rem; color: #4267B2; transition: all 0.3s ease"></i>
+                        </a>
+                        <a href="https://instagram.com" target="_blank" class="text-decoration-none" aria-label="Instagram">
+                            <i class="bi bi-instagram" style="font-size: 2rem; color: #E4405F; transition: all 0.3s ease"></i>
+                        </a>
+                    </div>
 
                     <div class="auth-toggle-link">
                         Don't have an account? <a href="#" onclick="toggleForms(event)">Create Account</a>
