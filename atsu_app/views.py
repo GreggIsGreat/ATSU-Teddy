@@ -77,3 +77,7 @@ def sign_up(request: HttpRequest) -> HttpResponse:
                 return render(request, 'atsu_app/sign_up.html', {'show_login': True})
 
     return render(request, 'atsu_app/sign_up.html')
+
+
+def bundles(request: HttpRequest) -> HttpResponse:
+    return render(request, 'atsu_app/bundles.html')
