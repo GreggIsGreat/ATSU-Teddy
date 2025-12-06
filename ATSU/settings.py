@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'atsu_app',
+    'job_listing',
 
     # Third party apps
     'allauth',
@@ -171,3 +173,130 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ==============================================================================
+# N8N INTEGRATION SETTINGS
+# ==============================================================================
+
+N8N_CONFIG = {
+    # N8N Base URL
+    'BASE_URL': config('N8N_BASE_URL', default='http://localhost:5678'),
+
+    # N8N API Key (from your n8n instance)
+    'API_KEY': config('N8N_API_KEY', default=''),
+
+    # Webhook URLs (create these in n8n)
+    'WEBHOOKS': {
+        # Document processing webhook
+        'DOCUMENT_SUBMITTED': config(
+            'N8N_WEBHOOK_DOCUMENT_SUBMITTED',
+            default='http://localhost:5678/webhook/document-submitted'
+        ),
+
+        # User registration webhook
+        'USER_REGISTERED': config(
+            'N8N_WEBHOOK_USER_REGISTERED',
+            default='http://localhost:5678/webhook/user-registered'
+        ),
+
+        # Job application webhook
+        'JOB_APPLICATION': config(
+            'N8N_WEBHOOK_JOB_APPLICATION',
+            default='http://localhost:5678/webhook/job-application'
+        ),
+
+        # CV processing webhook
+        'CV_UPLOADED': config(
+            'N8N_WEBHOOK_CV_UPLOADED',
+            default='http://localhost:5678/webhook/cv-uploaded'
+        ),
+
+        # Notification webhook
+        'SEND_NOTIFICATION': config(
+            'N8N_WEBHOOK_SEND_NOTIFICATION',
+            default='http://localhost:5678/webhook/send-notification'
+        ),
+
+        # Generic webhook
+        'GENERIC': config(
+            'N8N_WEBHOOK_GENERIC',
+            default='http://localhost:5678/webhook/django-event'
+        ),
+    },
+
+    # Timeout settings
+    'TIMEOUT': config('N8N_TIMEOUT', default=30, cast=int),
+    'RETRY_ATTEMPTS': config('N8N_RETRY_ATTEMPTS', default=3, cast=int),
+
+    # Enable/disable n8n integration
+    'ENABLED': config('N8N_ENABLED', default=True, cast=bool),
+
+    # Async mode (use Celery for webhooks)
+    'ASYNC_MODE': config('N8N_ASYNC_MODE', default=False, cast=bool),
+}
+
+# ==============================================================================
+# JOB API INTEGRATION SETTINGS
+# ==============================================================================
+
+JOB_API_CONFIG = {
+    # Job API Base URL (your FastAPI service)
+    'BASE_URL': config('JOB_API_BASE_URL', default='http://localhost:8001'),
+
+    # API Key (if you add authentication)
+    'API_KEY': config('JOB_API_KEY', default=''),
+
+    # Endpoints
+    'ENDPOINTS': {
+        'SEARCH': '/api/jobs',
+        'MATCH': '/api/jobs/match',
+        'PARSE_CV': '/api/cv/parse',
+        'SOURCES': '/api/sources',
+        'HEALTH': '/health',
+    },
+
+    # Default search parameters
+    'DEFAULTS': {
+        'COUNTRY': config('JOB_API_DEFAULT_COUNTRY', default='Botswana'),
+        'PER_PAGE': config('JOB_API_DEFAULT_PER_PAGE', default=20, cast=int),
+        'SOURCES': config('JOB_API_DEFAULT_SOURCES', default='', cast=Csv()),
+    },
+
+    # Timeout
+    'TIMEOUT': config('JOB_API_TIMEOUT', default=60, cast=int),
+
+    # Enable/disable
+    'ENABLED': config('JOB_API_ENABLED', default=True, cast=bool),
+
+    # Cache settings
+    'CACHE_TTL': config('JOB_API_CACHE_TTL', default=1800, cast=int),  # 30 minutes
+}
+
+# ==============================================================================
+# CORS SETTINGS (Allow n8n and Job API)
+# ==============================================================================
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5678",  # n8n
+    "http://127.0.0.1:5678",  # n8n
+    "http://localhost:8001",  # Job API
+    "http://127.0.0.1:8001",  # Job API
+    "http://localhost:3000",  # Frontend (if any)
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'x-n8n-api-key',
+    'x-api-key',
+]
+

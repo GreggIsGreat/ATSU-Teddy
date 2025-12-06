@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('', include('atsu_app.urls')),
+    path('job-listings/', include('job_listing.urls')),
 ]
 
 if settings.DEBUG:
