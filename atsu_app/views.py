@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
+from django.http import JsonResponse
 
 
 # Create your views here.

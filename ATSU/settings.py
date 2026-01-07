@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'atsu_app',
-    'job_listing',
+    'jobmatch',
 
     # Third party apps
     'allauth',
