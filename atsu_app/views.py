@@ -1,15 +1,31 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+
+"""
+    Credentials:
+    Username - ted_admin 
+    Password - 1234
+"""
 
 
 # Create your views here.
 
 def index(request: HttpRequest) -> HttpResponse:
     return render(request, 'atsu_app/index.html')
+
+def user_logout(request: HttpRequest) -> HttpResponse:
+    """
+    Log out the current user and redirect to index.
+    """
+    logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('index')
+
 
 def sign_up(request: HttpRequest) -> HttpResponse:
     """
