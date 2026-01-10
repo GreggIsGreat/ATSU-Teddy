@@ -1,286 +1,1198 @@
 <!DOCTYPE html>
 {% load static %}
-{% include 'atsu_app/navbar.html' %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ATSU - CV Analysis{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/cv_analysis.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-500: #6b7280;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--gray-50);
+            font-family: system-ui, -apple-system, sans-serif;
+            color: var(--gray-800);
+        }
+
+        .analysis-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* Header */
+        .analysis-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+        }
+
+        .header-title i {
+            color: var(--primary);
+        }
+
+        .header-subtitle {
+            color: var(--gray-500);
+            margin: 0.25rem 0 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-50);
+        }
+
+        /* Main Layout */
+        .analysis-main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            min-height: calc(100vh - 200px);
+        }
+
+        @media (max-width: 1024px) {
+            .analysis-main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Panels */
+        .panel {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tab-btn {
+            padding: 0.625rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--gray-500);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.875rem;
+        }
+
+        .tab-btn:hover {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 0.5rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--gray-500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* CV Document Styles */
+        .cv-document {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        .cv-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .cv-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .cv-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 0 0.25rem;
+        }
+
+        .cv-contact {
+            color: var(--gray-500);
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        .cv-section h4 {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+            margin: 0 0 1rem;
+            font-size: 1rem;
+        }
+
+        .cv-section ul {
+            margin: 0.5rem 0;
+            padding-left: 1.25rem;
+        }
+
+        .cv-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Highlight Styles */
+        .highlight {
+            position: relative;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .highlight-critical {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid var(--danger);
+        }
+
+        .highlight-critical:hover {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .highlight-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 3px solid var(--warning);
+        }
+
+        .highlight-warning:hover {
+            background: rgba(245, 158, 11, 0.15);
+        }
+
+        .highlight-success {
+            background: rgba(34, 197, 94, 0.1);
+            border-left: 3px solid var(--success);
+        }
+
+        .highlight-success:hover {
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        .highlight-marker {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+        }
+
+        .highlight-marker.critical { color: var(--danger); }
+        .highlight-marker.warning { color: var(--warning); }
+        .highlight-marker.success { color: var(--success); }
+
+        /* Optimized CV */
+        .cv-document.optimized {
+            border-color: var(--success);
+            position: relative;
+        }
+
+        .optimized-badge {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: linear-gradient(135deg, var(--success), #16a34a);
+            color: white;
+            padding: 0.375rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .improved-text {
+            background: rgba(34, 197, 94, 0.05);
+            border-left: 3px solid var(--success);
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            margin: 0.5rem 0;
+        }
+
+        /* Score Section */
+        .score-section {
+            text-align: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            position: relative;
+            margin: 0 auto 1rem;
+        }
+
+        .score-circle svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .score-circle circle {
+            fill: none;
+            stroke-width: 10;
+            stroke-linecap: round;
+        }
+
+        .score-bg {
+            stroke: var(--gray-200);
+        }
+
+        .score-progress {
+            stroke: var(--primary);
+            transition: stroke-dashoffset 1s ease-in-out, stroke 0.3s;
+        }
+
+        .score-progress.low { stroke: var(--danger); }
+        .score-progress.medium { stroke: var(--warning); }
+        .score-progress.high { stroke: var(--success); }
+
+        .score-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 3rem;
+            font-weight: bold;
+            line-height: 1;
+            display: block;
+        }
+
+        .score-number.low { color: var(--danger); }
+        .score-number.medium { color: var(--warning); }
+        .score-number.high { color: var(--success); }
+
+        .score-label {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        .score-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .score-status.low {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .score-status.medium {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .score-status.high {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        /* Score Breakdown */
+        .score-breakdown {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .score-breakdown h4 {
+            margin: 0 0 1rem;
+            font-size: 1rem;
+        }
+
+        .breakdown-item {
+            margin-bottom: 1rem;
+        }
+
+        .breakdown-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .breakdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .breakdown-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+
+        .breakdown-score {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-fill.low { background: var(--danger); }
+        .progress-fill.medium { background: var(--warning); }
+        .progress-fill.high { background: var(--success); }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            padding: 1.5rem 0;
+        }
+
+        .stat-card {
+            background: var(--gray-50);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.critical {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        .stat-icon.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        .stat-icon.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            line-height: 1;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: 0.125rem;
+        }
+
+        /* Job Description Tab */
+        .job-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .job-header h3 {
+            margin: 0 0 0.25rem;
+            font-size: 1.25rem;
+        }
+
+        .company-name {
+            color: var(--primary);
+            font-weight: 500;
+            margin: 0 0 0.5rem;
+        }
+
+        .job-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        .job-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .job-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .job-section h4 {
+            font-size: 1rem;
+            margin: 0 0 0.75rem;
+        }
+
+        .requirements-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .requirements-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.625rem 0;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .requirements-list li:last-child {
+            border-bottom: none;
+        }
+
+        .requirements-list li i {
+            margin-top: 0.125rem;
+            flex-shrink: 0;
+        }
+
+        .requirements-list li.matched i { color: var(--success); }
+        .requirements-list li.missing i { color: var(--danger); }
+        .requirements-list li.partial i { color: var(--warning); }
+
+        /* Keywords */
+        .keywords-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .keyword {
+            padding: 0.375rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .keyword.found {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .keyword.missing {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .keyword.partial {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* Improvements Tab */
+        .improvements-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .improvements-header h4 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .improvements-header p {
+            color: var(--gray-500);
+            margin: 0.25rem 0 0;
+            font-size: 0.875rem;
+        }
+
+        .improvement-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .group-header.critical {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .group-header.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .group-header.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .improvement-card {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .improvement-card:hover {
+            background: var(--gray-100);
+            transform: translateX(4px);
+        }
+
+        .improvement-priority {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .improvement-priority.critical { background: var(--danger); }
+        .improvement-priority.warning { background: var(--warning); color: var(--gray-800); }
+
+        .improvement-content {
+            flex: 1;
+        }
+
+        .improvement-content h5 {
+            margin: 0 0 0.375rem;
+            font-size: 0.95rem;
+        }
+
+        .improvement-content p {
+            margin: 0 0 0.75rem;
+            font-size: 0.85rem;
+            color: var(--gray-500);
+            line-height: 1.5;
+        }
+
+        .improvement-example {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--primary);
+        }
+
+        .example-label {
+            font-size: 0.7rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .improvement-example p {
+            margin: 0.25rem 0 0;
+            color: var(--gray-700);
+        }
+
+        .improvement-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tag-add {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+            padding: 0.25rem 0.625rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .btn-apply {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-apply:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-apply.applied {
+            background: var(--success);
+        }
+
+        /* Success Items */
+        .success-items {
+            background: var(--gray-50);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+        }
+
+        .success-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            color: var(--success);
+        }
+
+        /* Floating Legend */
+        .highlight-legend {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            gap: 1.5rem;
+            z-index: 100;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .legend-color.critical { background: var(--danger); }
+        .legend-color.warning { background: var(--warning); }
+        .legend-color.success { background: var(--success); }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: var(--gray-800);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            max-width: 300px;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .tooltip.visible {
+            opacity: 1;
+        }
+
+        .tooltip-arrow {
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid var(--gray-800);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .analysis-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .highlight-legend {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 1rem;
+                border-radius: 0.75rem;
+            }
+
+            .panel-tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                font-size: 0.75rem;
+                padding: 0.5rem 0.75rem;
+            }
+        }
+    </style>
 </head>
 <body>
-{% block content %}
+    {% include 'atsu_app/navbar.html' %}
 
-<div class="analysis-container">
-    <!-- Header Section -->
-    <div class="analysis-header">
-        <div class="header-left">
-            <h1><i class="bi bi-file-earmark-check"></i> CV Analysis Report</h1>
-            <p class="job-title-display">{{ job_title|default:"Software Developer" }}</p>
-        </div>
-        <div class="header-right">
-            <button class="btn-export" onclick="exportReport()">
-                <i class="bi bi-download"></i> Export PDF
-            </button>
-            <button class="btn-reanalyze" onclick="reanalyze()">
-                <i class="bi bi-arrow-repeat"></i> Re-analyze
-            </button>
-        </div>
-    </div>
-
-    <!-- Main Content Area -->
-    <div class="analysis-main">
-        <!-- Left Panel - CV with Highlights -->
-        <div class="panel cv-panel">
-            <div class="panel-header">
-                <div class="panel-tabs">
-                    <button class="tab-btn active" data-tab="cv">
-                        <i class="bi bi-file-person"></i> Your CV
-                    </button>
-                    <button class="tab-btn" data-tab="optimized">
-                        <i class="bi bi-magic"></i> Optimized Version
-                    </button>
-                </div>
-                <div class="panel-actions">
-                    <button class="icon-btn" title="Zoom In" onclick="zoomIn()">
-                        <i class="bi bi-zoom-in"></i>
-                    </button>
-                    <button class="icon-btn" title="Zoom Out" onclick="zoomOut()">
-                        <i class="bi bi-zoom-out"></i>
-                    </button>
-                </div>
+    {% block content %}
+    <div class="analysis-container">
+        <!-- Header Section -->
+        <div class="analysis-header">
+            <div>
+                <h1 class="header-title">
+                    <i class="bi bi-file-earmark-check"></i>
+                    CV Analysis Report
+                </h1>
+                <p class="header-subtitle">{{ job_title|default:"Software Developer" }} at {{ company_name|default:"Tech Company" }}</p>
             </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="exportReport()">
+                    <i class="bi bi-download"></i>
+                    Export PDF
+                </button>
+                <button class="btn btn-secondary" onclick="reanalyze()">
+                    <i class="bi bi-arrow-repeat"></i>
+                    Re-analyze
+                </button>
+            </div>
+        </div>
 
-            <div class="panel-content" id="cvContent">
-                <!-- CV Tab Content -->
-                <div class="tab-content active" id="cv-tab">
-                    <div class="cv-document" id="cvDocument">
-                        <!-- CV content with highlighted sections -->
-                        <div class="cv-section">
-                            <h3 class="cv-name">{{ user_name|default:"John Doe" }}</h3>
-                            <p class="cv-contact">{{ user_email|default:"john@email.com" }} | {{ user_phone|default:"+267 71 234 567" }}</p>
-                        </div>
+        <!-- Main Content Area -->
+        <div class="analysis-main">
+            <!-- Left Panel - CV -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-tabs">
+                        <button class="tab-btn active" data-tab="cv" data-panel="left">
+                            <i class="bi bi-file-person"></i> Your CV
+                        </button>
+                        <button class="tab-btn" data-tab="optimized" data-panel="left">
+                            <i class="bi bi-magic"></i> Optimized
+                        </button>
+                    </div>
+                    <div class="panel-actions">
+                        <button class="icon-btn" title="Zoom In" onclick="zoomIn()">
+                            <i class="bi bi-zoom-in"></i>
+                        </button>
+                        <button class="icon-btn" title="Zoom Out" onclick="zoomOut()">
+                            <i class="bi bi-zoom-out"></i>
+                        </button>
+                    </div>
+                </div>
 
-                        <div class="cv-section">
-                            <h4>Professional Summary</h4>
-                            <p class="highlight-critical" data-suggestion="Add quantifiable achievements and specific technologies">
-                                Experienced software developer with 5 years of experience in web development.
-                                <span class="highlight-marker critical"><i class="bi bi-exclamation-circle"></i></span>
-                            </p>
-                        </div>
+                <div class="panel-content">
+                    <!-- Original CV Tab -->
+                    <div class="tab-content active" id="cv-tab">
+                        <div class="cv-document" id="cvDocument">
+                            <div class="cv-section">
+                                <h3 class="cv-name">{{ user_name|default:"John Doe" }}</h3>
+                                <p class="cv-contact">{{ user_email|default:"john@email.com" }} | {{ user_phone|default:"+267 71 234 567" }}</p>
+                            </div>
 
-                        <div class="cv-section">
-                            <h4>Skills</h4>
-                            <p class="highlight-warning" data-suggestion="Add Python and Django as mentioned in job description">
-                                JavaScript, React, HTML, CSS, Node.js
-                                <span class="highlight-marker warning"><i class="bi bi-exclamation-triangle"></i></span>
-                            </p>
-                        </div>
+                            <div class="cv-section">
+                                <h4>Professional Summary</h4>
+                                <div class="highlight highlight-critical" data-suggestion="Add quantifiable achievements and specific technologies. Include metrics like 'increased performance by X%' or 'managed team of X developers'.">
+                                    <p>Experienced software developer with 5 years of experience in web development.</p>
+                                    <span class="highlight-marker critical"><i class="bi bi-exclamation-circle-fill"></i></span>
+                                </div>
+                            </div>
 
-                        <div class="cv-section">
-                            <h4>Experience</h4>
-                            <div class="experience-item">
-                                <p class="highlight-success" data-suggestion="Great! This aligns well with the job requirements">
-                                    <strong>Senior Developer</strong> - Tech Company (2020-Present)
-                                    <span class="highlight-marker success"><i class="bi bi-check-circle"></i></span>
-                                </p>
+                            <div class="cv-section">
+                                <h4>Technical Skills</h4>
+                                <div class="highlight highlight-warning" data-suggestion="Add Python and Django as mentioned in job description. Also consider adding AWS or cloud platform experience.">
+                                    <p>JavaScript, React, HTML, CSS, Node.js</p>
+                                    <span class="highlight-marker warning"><i class="bi bi-exclamation-triangle-fill"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="cv-section">
+                                <h4>Work Experience</h4>
+                                <div class="highlight highlight-success" data-suggestion="Great! Your job title aligns well with the position requirements.">
+                                    <p><strong>Senior Developer</strong> - Tech Company (2020 - Present)</p>
+                                    <span class="highlight-marker success"><i class="bi bi-check-circle-fill"></i></span>
+                                </div>
                                 <ul>
-                                    <li class="highlight-critical" data-suggestion="Add specific metrics: 'Increased performance by X%'">
-                                        Developed web applications
-                                        <span class="highlight-marker critical"><i class="bi bi-exclamation-circle"></i></span>
+                                    <li class="highlight highlight-critical" data-suggestion="Add specific metrics: 'Developed web applications that served 10,000+ daily users' or 'Reduced load time by 40%'.">
+                                        Developed web applications using modern frameworks
+                                        <span class="highlight-marker critical"><i class="bi bi-exclamation-circle-fill"></i></span>
                                     </li>
-                                    <li class="highlight-warning" data-suggestion="Mention team size and leadership experience">
-                                        Led development team
-                                        <span class="highlight-marker warning"><i class="bi bi-exclamation-triangle"></i></span>
+                                    <li class="highlight highlight-warning" data-suggestion="Specify team size and leadership responsibilities: 'Led a team of 5 developers'.">
+                                        Led development team on multiple projects
+                                        <span class="highlight-marker warning"><i class="bi bi-exclamation-triangle-fill"></i></span>
                                     </li>
-                                    <li>Implemented CI/CD pipelines</li>
+                                    <li>Implemented CI/CD pipelines for automated deployments</li>
+                                    <li>Collaborated with cross-functional teams</li>
+                                </ul>
+
+                                <p><strong>Junior Developer</strong> - Startup Inc (2018 - 2020)</p>
+                                <ul>
+                                    <li>Built responsive web interfaces</li>
+                                    <li>Maintained legacy codebase</li>
                                 </ul>
                             </div>
-                        </div>
 
-                        <div class="cv-section">
-                            <h4>Education</h4>
-                            <p>BSc Computer Science - University of Botswana (2018)</p>
+                            <div class="cv-section">
+                                <h4>Education</h4>
+                                <p>BSc Computer Science - University of Botswana (2018)</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Optimized Version Tab -->
-                <div class="tab-content" id="optimized-tab">
-                    <div class="cv-document optimized">
-                        <div class="optimized-badge">
-                            <i class="bi bi-stars"></i> AI-Optimized Version
-                        </div>
+                    <!-- Optimized CV Tab -->
+                    <div class="tab-content" id="optimized-tab">
+                        <div class="cv-document optimized">
+                            <div class="optimized-badge">
+                                <i class="bi bi-stars"></i> AI-Optimized Version
+                            </div>
 
-                        <div class="cv-section">
-                            <h3 class="cv-name">{{ user_name|default:"John Doe" }}</h3>
-                            <p class="cv-contact">{{ user_email|default:"john@email.com" }} | {{ user_phone|default:"+267 71 234 567" }}</p>
-                        </div>
+                            <div class="cv-section">
+                                <h3 class="cv-name">{{ user_name|default:"John Doe" }}</h3>
+                                <p class="cv-contact">{{ user_email|default:"john@email.com" }} | {{ user_phone|default:"+267 71 234 567" }}</p>
+                            </div>
 
-                        <div class="cv-section">
-                            <h4>Professional Summary</h4>
-                            <p class="improved-text">
-                                Results-driven software developer with <strong>5+ years</strong> of experience building scalable web applications using <strong>React, Node.js, and Python</strong>. Delivered projects that <strong>improved user engagement by 40%</strong> and <strong>reduced load times by 60%</strong>.
-                            </p>
-                        </div>
+                            <div class="cv-section">
+                                <h4>Professional Summary</h4>
+                                <div class="improved-text">
+                                    <p>Results-driven software developer with <strong>5+ years</strong> of experience building scalable web applications using <strong>React, Node.js, and Python</strong>. Proven track record of delivering projects that <strong>improved user engagement by 40%</strong> and <strong>reduced page load times by 60%</strong>. Experienced in leading cross-functional teams and implementing CI/CD pipelines.</p>
+                                </div>
+                            </div>
 
-                        <div class="cv-section">
-                            <h4>Technical Skills</h4>
-                            <p class="improved-text">
-                                <strong>Frontend:</strong> JavaScript, React, TypeScript, HTML5, CSS3<br>
-                                <strong>Backend:</strong> Python, Django, Node.js, REST APIs<br>
-                                <strong>Tools:</strong> Git, Docker, AWS, CI/CD
-                            </p>
-                        </div>
-                        <!-- More optimized content -->
-                    </div>
-                </div>
-            </div>
-        </div>
+                            <div class="cv-section">
+                                <h4>Technical Skills</h4>
+                                <div class="improved-text">
+                                    <p><strong>Frontend:</strong> JavaScript (ES6+), React, TypeScript, HTML5, CSS3, Redux<br>
+                                    <strong>Backend:</strong> Python, Django, Node.js, Express, REST APIs, GraphQL<br>
+                                    <strong>Database:</strong> PostgreSQL, MongoDB, Redis<br>
+                                    <strong>Cloud & DevOps:</strong> AWS (EC2, S3, Lambda), Docker, Kubernetes, CI/CD<br>
+                                    <strong>Tools:</strong> Git, Jira, Agile/Scrum methodologies</p>
+                                </div>
+                            </div>
 
-        <!-- Right Panel - Job Description & Analysis -->
-        <div class="panel analysis-panel">
-            <div class="panel-header">
-                <div class="panel-tabs">
-                    <button class="tab-btn active" data-tab="score">
-                        <i class="bi bi-speedometer2"></i> Score
-                    </button>
-                    <button class="tab-btn" data-tab="job">
-                        <i class="bi bi-briefcase"></i> Job Description
-                    </button>
-                    <button class="tab-btn" data-tab="improvements">
-                        <i class="bi bi-list-check"></i> Improvements
-                    </button>
-                </div>
-            </div>
-
-            <div class="panel-content">
-                <!-- Score Tab -->
-                <div class="tab-content active" id="score-tab">
-                    <!-- Hireability Score Circle -->
-                    <div class="score-section">
-                        <div class="score-circle-container">
-                            <div class="score-circle" data-score="67">
-                                <svg viewBox="0 0 100 100">
-                                    <circle class="score-bg" cx="50" cy="50" r="45"></circle>
-                                    <circle class="score-progress" cx="50" cy="50" r="45"
-                                            stroke-dasharray="283"
-                                            stroke-dashoffset="93"></circle>
-                                </svg>
-                                <div class="score-value">
-                                    <span class="score-number">67</span>
-                                    <span class="score-label">Hireability</span>
+                            <div class="cv-section">
+                                <h4>Work Experience</h4>
+                                <div class="improved-text">
+                                    <p><strong>Senior Developer</strong> - Tech Company (2020 - Present)</p>
+                                    <ul>
+                                        <li>Architected and developed a customer-facing platform serving <strong>15,000+ daily active users</strong>, resulting in <strong>35% increase in user retention</strong></li>
+                                        <li>Led a team of <strong>5 developers</strong>, conducting code reviews and mentoring junior team members</li>
+                                        <li>Implemented CI/CD pipelines reducing deployment time from <strong>2 hours to 15 minutes</strong></li>
+                                        <li>Optimized database queries achieving <strong>60% reduction in API response times</strong></li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
-                        <div class="score-status warning">
-                            <i class="bi bi-exclamation-triangle-fill"></i>
-                            <span>Needs Improvement</span>
-                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Score Breakdown -->
-                    <div class="score-breakdown">
-                        <h4>Score Breakdown</h4>
-
-                        <div class="breakdown-item">
-                            <div class="breakdown-header">
-                                <span class="breakdown-label">
-                                    <i class="bi bi-bullseye"></i> Keyword Match
-                                </span>
-                                <span class="breakdown-score">45%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill critical" style="width: 45%"></div>
-                            </div>
-                        </div>
-
-                        <div class="breakdown-item">
-                            <div class="breakdown-header">
-                                <span class="breakdown-label">
-                                    <i class="bi bi-gear"></i> Skills Match
-                                </span>
-                                <span class="breakdown-score">72%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill warning" style="width: 72%"></div>
-                            </div>
-                        </div>
-
-                        <div class="breakdown-item">
-                            <div class="breakdown-header">
-                                <span class="breakdown-label">
-                                    <i class="bi bi-briefcase"></i> Experience Relevance
-                                </span>
-                                <span class="breakdown-score">85%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill success" style="width: 85%"></div>
-                            </div>
-                        </div>
-
-                        <div class="breakdown-item">
-                            <div class="breakdown-header">
-                                <span class="breakdown-label">
-                                    <i class="bi bi-file-text"></i> Format & Structure
-                                </span>
-                                <span class="breakdown-score">60%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill warning" style="width: 60%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Stats -->
-                    <div class="quick-stats">
-                        <div class="stat-card">
-                            <div class="stat-icon critical">
-                                <i class="bi bi-exclamation-circle"></i>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-value">5</span>
-                                <span class="stat-label">Critical Issues</span>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon warning">
-                                <i class="bi bi-exclamation-triangle"></i>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-value">8</span>
-                                <span class="stat-label">Warnings</span>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon success">
-                                <i class="bi bi-check-circle"></i>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-value">12</span>
-                                <span class="stat-label">Matches</span>
-                            </div>
-                        </div>
+            <!-- Right Panel - Analysis -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-tabs">
+                        <button class="tab-btn active" data-tab="score" data-panel="right">
+                            <i class="bi bi-speedometer2"></i> Score
+                        </button>
+                        <button class="tab-btn" data-tab="job" data-panel="right">
+                            <i class="bi bi-briefcase"></i> Job
+                        </button>
+                        <button class="tab-btn" data-tab="improvements" data-panel="right">
+                            <i class="bi bi-list-check"></i> Improve
+                        </button>
                     </div>
                 </div>
 
-                <!-- Job Description Tab -->
-                <div class="tab-content" id="job-tab">
-                    <div class="job-description-content">
+                <div class="panel-content">
+                    <!-- Score Tab -->
+                    <div class="tab-content active" id="score-tab">
+                        <div class="score-section">
+                            <div class="score-circle" data-score="67">
+                                <svg viewBox="0 0 100 100">
+                                    <circle class="score-bg" cx="50" cy="50" r="45"></circle>
+                                    <circle class="score-progress medium" cx="50" cy="50" r="45"
+                                            stroke-dasharray="283"
+                                            stroke-dashoffset="283"></circle>
+                                </svg>
+                                <div class="score-value">
+                                    <span class="score-number medium" id="scoreNumber">0</span>
+                                    <span class="score-label">Match Score</span>
+                                </div>
+                            </div>
+                            <div class="score-status medium">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                <span>Needs Improvement</span>
+                            </div>
+                        </div>
+
+                        <div class="score-breakdown">
+                            <h4>Score Breakdown</h4>
+
+                            <div class="breakdown-item">
+                                <div class="breakdown-header">
+                                    <span class="breakdown-label">
+                                        <i class="bi bi-bullseye"></i> Keyword Match
+                                    </span>
+                                    <span class="breakdown-score">45%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill low" style="width: 45%"></div>
+                                </div>
+                            </div>
+
+                            <div class="breakdown-item">
+                                <div class="breakdown-header">
+                                    <span class="breakdown-label">
+                                        <i class="bi bi-gear"></i> Skills Match
+                                    </span>
+                                    <span class="breakdown-score">72%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill medium" style="width: 72%"></div>
+                                </div>
+                            </div>
+
+                            <div class="breakdown-item">
+                                <div class="breakdown-header">
+                                    <span class="breakdown-label">
+                                        <i class="bi bi-briefcase"></i> Experience
+                                    </span>
+                                    <span class="breakdown-score">85%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill high" style="width: 85%"></div>
+                                </div>
+                            </div>
+
+                            <div class="breakdown-item">
+                                <div class="breakdown-header">
+                                    <span class="breakdown-label">
+                                        <i class="bi bi-file-text"></i> Format
+                                    </span>
+                                    <span class="breakdown-score">60%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill medium" style="width: 60%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="quick-stats">
+                            <div class="stat-card">
+                                <div class="stat-icon critical">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value">5</span>
+                                    <span class="stat-label">Critical Issues</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon warning">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value">8</span>
+                                    <span class="stat-label">Warnings</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon success">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value">12</span>
+                                    <span class="stat-label">Matches</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Job Description Tab -->
+                    <div class="tab-content" id="job-tab">
                         <div class="job-header">
                             <h3>{{ job_title|default:"Senior Software Developer" }}</h3>
                             <p class="company-name">{{ company_name|default:"Tech Solutions Ltd" }}</p>
                             <div class="job-meta">
                                 <span><i class="bi bi-geo-alt"></i> Gaborone, Botswana</span>
                                 <span><i class="bi bi-clock"></i> Full-time</span>
+                                <span><i class="bi bi-currency-dollar"></i> P25,000 - P35,000</span>
                             </div>
                         </div>
 
                         <div class="job-section">
-                            <h4>Requirements</h4>
+                            <h4>Requirements Match</h4>
                             <ul class="requirements-list">
                                 <li class="matched">
                                     <i class="bi bi-check-circle-fill"></i>
@@ -300,88 +1212,93 @@
                                 </li>
                                 <li class="partial">
                                     <i class="bi bi-dash-circle-fill"></i>
-                                    Team leadership experience
+                                    Team leadership experience (partially mentioned)
+                                </li>
+                                <li class="matched">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    CI/CD pipeline experience
                                 </li>
                             </ul>
                         </div>
 
                         <div class="job-section">
-                            <h4>Keywords Found</h4>
+                            <h4>Keywords Analysis</h4>
                             <div class="keywords-cloud">
                                 <span class="keyword found">JavaScript</span>
                                 <span class="keyword found">React</span>
                                 <span class="keyword found">Node.js</span>
+                                <span class="keyword found">CI/CD</span>
                                 <span class="keyword missing">Python</span>
                                 <span class="keyword missing">Django</span>
                                 <span class="keyword missing">AWS</span>
-                                <span class="keyword found">CI/CD</span>
+                                <span class="keyword missing">Docker</span>
                                 <span class="keyword partial">Leadership</span>
+                                <span class="keyword partial">Agile</span>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Improvements Tab -->
-                <div class="tab-content" id="improvements-tab">
-                    <div class="improvements-content">
+                    <!-- Improvements Tab -->
+                    <div class="tab-content" id="improvements-tab">
                         <div class="improvements-header">
                             <h4>Priority Improvements</h4>
-                            <p>Make these changes to increase your score</p>
+                            <p>Make these changes to boost your score</p>
                         </div>
 
-                        <!-- Critical Improvements -->
+                        <!-- Critical -->
                         <div class="improvement-group">
                             <div class="group-header critical">
                                 <i class="bi bi-exclamation-circle-fill"></i>
-                                <span>Critical (Fix Immediately)</span>
+                                <span>Critical (Fix Now)</span>
                             </div>
 
-                            <div class="improvement-card" data-highlight="summary">
+                            <div class="improvement-card" data-target="summary">
                                 <div class="improvement-priority critical">1</div>
                                 <div class="improvement-content">
                                     <h5>Add Quantifiable Achievements</h5>
-                                    <p>Your summary lacks specific metrics. Add numbers like "increased sales by 30%" or "managed team of 5".</p>
+                                    <p>Your summary lacks specific metrics. Numbers make your impact measurable and believable.</p>
                                     <div class="improvement-example">
-                                        <span class="example-label">Example:</span>
-                                        <p>"Led development of e-commerce platform serving <strong>10,000+ daily users</strong>"</p>
+                                        <span class="example-label">Example</span>
+                                        <p>"Developed platform serving <strong>10,000+ daily users</strong> with <strong>99.9% uptime</strong>"</p>
                                     </div>
                                     <button class="btn-apply" onclick="applyImprovement(this)">
-                                        <i class="bi bi-magic"></i> Apply Suggestion
+                                        <i class="bi bi-magic"></i> Apply Fix
                                     </button>
                                 </div>
                             </div>
 
-                            <div class="improvement-card" data-highlight="skills">
+                            <div class="improvement-card" data-target="skills">
                                 <div class="improvement-priority critical">2</div>
                                 <div class="improvement-content">
                                     <h5>Add Missing Technical Skills</h5>
-                                    <p>The job requires Python and Django, but they're not on your CV.</p>
+                                    <p>The job requires Python, Django, and AWS which are not on your CV.</p>
                                     <div class="improvement-tags">
                                         <span class="tag-add">+ Python</span>
                                         <span class="tag-add">+ Django</span>
                                         <span class="tag-add">+ AWS</span>
+                                        <span class="tag-add">+ Docker</span>
                                     </div>
                                     <button class="btn-apply" onclick="applyImprovement(this)">
-                                        <i class="bi bi-magic"></i> Apply Suggestion
+                                        <i class="bi bi-magic"></i> Apply Fix
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Warning Improvements -->
+                        <!-- Warnings -->
                         <div class="improvement-group">
                             <div class="group-header warning">
                                 <i class="bi bi-exclamation-triangle-fill"></i>
                                 <span>Recommended</span>
                             </div>
 
-                            <div class="improvement-card" data-highlight="experience">
+                            <div class="improvement-card" data-target="experience">
                                 <div class="improvement-priority warning">3</div>
                                 <div class="improvement-content">
-                                    <h5>Expand Leadership Experience</h5>
-                                    <p>Mention specific team size and leadership responsibilities.</p>
+                                    <h5>Expand Leadership Details</h5>
+                                    <p>Mention team size and specific leadership responsibilities.</p>
                                     <button class="btn-apply" onclick="applyImprovement(this)">
-                                        <i class="bi bi-magic"></i> Apply Suggestion
+                                        <i class="bi bi-magic"></i> Apply Fix
                                     </button>
                                 </div>
                             </div>
@@ -389,26 +1306,26 @@
                             <div class="improvement-card">
                                 <div class="improvement-priority warning">4</div>
                                 <div class="improvement-content">
-                                    <h5>Use Action Verbs</h5>
-                                    <p>Start bullet points with strong action verbs like "Architected", "Optimized", "Spearheaded".</p>
+                                    <h5>Use Stronger Action Verbs</h5>
+                                    <p>Replace generic verbs with powerful ones: "Architected", "Spearheaded", "Optimized"</p>
                                     <button class="btn-apply" onclick="applyImprovement(this)">
-                                        <i class="bi bi-magic"></i> Apply Suggestion
+                                        <i class="bi bi-magic"></i> Apply Fix
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Success Items -->
+                        <!-- What's Working -->
                         <div class="improvement-group">
                             <div class="group-header success">
                                 <i class="bi bi-check-circle-fill"></i>
-                                <span>What's Working Well</span>
+                                <span>What's Working</span>
                             </div>
 
                             <div class="success-items">
                                 <div class="success-item">
                                     <i class="bi bi-check"></i>
-                                    <span>Relevant job title matches position</span>
+                                    <span>Job title matches position</span>
                                 </div>
                                 <div class="success-item">
                                     <i class="bi bi-check"></i>
@@ -421,6 +1338,10 @@
                                 <div class="success-item">
                                     <i class="bi bi-check"></i>
                                     <span>Contact information is clear</span>
+                                </div>
+                                <div class="success-item">
+                                    <i class="bi bi-check"></i>
+                                    <span>CI/CD experience highlighted</span>
                                 </div>
                             </div>
                         </div>
@@ -445,16 +1366,199 @@
             <span>Good Match</span>
         </div>
     </div>
-</div>
 
-<!-- Tooltip for highlights -->
-<div class="highlight-tooltip" id="highlightTooltip">
-    <div class="tooltip-content"></div>
-    <div class="tooltip-arrow"></div>
-</div>
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-content"></div>
+        <div class="tooltip-arrow"></div>
+    </div>
 
-{% endblock %}
+    {% endblock %}
 
-<script src="{% static 'js/cv_analysis.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initScoreAnimation();
+            initTabs();
+            initHighlights();
+        });
+
+        // Score Animation
+        function initScoreAnimation() {
+            const scoreCircle = document.querySelector('.score-circle');
+            if (!scoreCircle) return;
+
+            const score = parseInt(scoreCircle.dataset.score) || 0;
+            const circumference = 2 * Math.PI * 45;
+            const progressCircle = scoreCircle.querySelector('.score-progress');
+            const scoreNumber = document.getElementById('scoreNumber');
+
+            // Set initial state
+            progressCircle.style.strokeDasharray = circumference;
+            progressCircle.style.strokeDashoffset = circumference;
+
+            // Determine color class
+            let colorClass = 'low';
+            if (score >= 70) colorClass = 'high';
+            else if (score >= 50) colorClass = 'medium';
+
+            progressCircle.classList.remove('low', 'medium', 'high');
+            progressCircle.classList.add(colorClass);
+            scoreNumber.classList.remove('low', 'medium', 'high');
+            scoreNumber.classList.add(colorClass);
+
+            // Animate after delay
+            setTimeout(() => {
+                const offset = circumference - (score / 100) * circumference;
+                progressCircle.style.strokeDashoffset = offset;
+                animateNumber(scoreNumber, 0, score, 1000);
+            }, 300);
+        }
+
+        function animateNumber(element, start, end, duration) {
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = Math.round(start + (end - start) * easeOut);
+
+                element.textContent = current;
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // Tab Switching
+        function initTabs() {
+            document.querySelectorAll('.tab-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const panel = this.dataset.panel;
+                    const tabName = this.dataset.tab;
+                    const tabGroup = this.closest('.panel-tabs');
+                    const panelContent = this.closest('.panel').querySelector('.panel-content');
+
+                    // Update active button
+                    tabGroup.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    this.classList.add('active');
+
+                    // Update active content
+                    panelContent.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+
+                    const targetTab = document.getElementById(`${tabName}-tab`);
+                    if (targetTab) {
+                        targetTab.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // Highlight Tooltips
+        function initHighlights() {
+            const highlights = document.querySelectorAll('.highlight[data-suggestion]');
+            const tooltip = document.getElementById('tooltip');
+            const tooltipContent = tooltip.querySelector('.tooltip-content');
+
+            highlights.forEach(highlight => {
+                highlight.addEventListener('mouseenter', function(e) {
+                    const suggestion = this.dataset.suggestion;
+                    tooltipContent.textContent = suggestion;
+                    tooltip.classList.add('visible');
+
+                    const rect = this.getBoundingClientRect();
+                    tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+                    tooltip.style.top = `${rect.top - tooltip.offsetHeight - 10}px`;
+                });
+
+                highlight.addEventListener('mouseleave', function() {
+                    tooltip.classList.remove('visible');
+                });
+
+                highlight.addEventListener('click', function() {
+                    // Switch to improvements tab
+                    const improvementsTab = document.querySelector('[data-tab="improvements"]');
+                    if (improvementsTab) {
+                        improvementsTab.click();
+                    }
+                });
+            });
+        }
+
+        // Zoom Functions
+        let currentZoom = 1;
+
+        function zoomIn() {
+            if (currentZoom < 1.5) {
+                currentZoom += 0.1;
+                applyZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (currentZoom > 0.7) {
+                currentZoom -= 0.1;
+                applyZoom();
+            }
+        }
+
+        function applyZoom() {
+            const cvDocument = document.getElementById('cvDocument');
+            if (cvDocument) {
+                cvDocument.style.transform = `scale(${currentZoom})`;
+                cvDocument.style.transformOrigin = 'top left';
+            }
+        }
+
+        // Apply Improvement
+        function applyImprovement(button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="bi bi-hourglass-split"></i> Applying...';
+            button.disabled = true;
+
+            setTimeout(() => {
+                button.innerHTML = '<i class="bi bi-check"></i> Applied!';
+                button.classList.add('applied');
+
+                // Switch to optimized tab
+                const optimizedTab = document.querySelector('[data-tab="optimized"]');
+                if (optimizedTab) {
+                    optimizedTab.click();
+                }
+
+                // Update score
+                updateScore(5);
+            }, 1000);
+        }
+
+        function updateScore(increment) {
+            const scoreCircle = document.querySelector('.score-circle');
+            if (!scoreCircle) return;
+
+            let currentScore = parseInt(scoreCircle.dataset.score) || 0;
+            let newScore = Math.min(currentScore + increment, 100);
+            scoreCircle.dataset.score = newScore;
+
+            initScoreAnimation();
+        }
+
+        function exportReport() {
+            alert('Generating PDF report...');
+            // Add PDF export logic here
+        }
+
+        function reanalyze() {
+            if (confirm('Re-analyze your CV with the current job description?')) {
+                location.reload();
+            }
+        }
+    </script>
 </body>
 </html>

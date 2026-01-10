@@ -1,61 +1,99 @@
 <!DOCTYPE html>
 {% load static %}
-{% include 'atsu_app/navbar.html' %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}ATSU{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ATSU - Upload Documents{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
-    <script src="{% static 'js/script.js' %}" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-{% block content %}
-<div class="upload-container">
-    <h2>Upload Your Documents</h2>
-    <form id="documentUploadForm" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-row">
-            <div class="form-column">
-                <div class="file-upload-container">
-                    <label for="cvUpload" class="file-upload-label">
-                        <div class="file-upload-box" id="cvUploadBox">
-                            <span class="file-upload-icon">📄</span>
-                            <span class="file-upload-text">Upload CV (PDF, DOC, DOCX)</span>
-                            <span class="file-name" id="cvFileName">No file chosen</span>
-                        </div>
-                        <input type="file" id="cvUpload" name="cv" accept=".pdf,.doc,.docx" class="file-input" required>
-                    </label>
-                </div>
+    {% include 'atsu_app/navbar.html' %}
+
+    {% block content %}
+    <div class="upload-container">
+        <h2><i class="bi bi-cloud-arrow-up me-2"></i>Upload Your Documents</h2>
+
+        <!-- Upload Status Banner -->
+        <div class="upload-status-banner {% if uploads_remaining <= 0 %}danger{% elif uploads_remaining == 1 %}warning{% endif %}" id="uploadStatusBanner">
+            <div class="status-content">
+                {% if uploads_remaining <= 0 %}
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>You have <strong>no uploads</strong> remaining. Purchase a bundle to continue.</span>
+                {% elif uploads_remaining == 1 %}
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>You have <strong>1 upload</strong> remaining. Consider getting more!</span>
+                {% else %}
+                    <i class="bi bi-info-circle"></i>
+                    <span>You have <strong id="bannerUploadsLeft">{{ uploads_remaining }}</strong> uploads remaining</span>
+                {% endif %}
             </div>
-            <div class="form-column">
-                <div class="file-upload-container">
-                    <label for="jdUpload" class="file-upload-label">
-                        <div class="file-upload-box" id="jdUploadBox">
-                            <span class="file-upload-icon">📋</span>
-                            <span class="file-upload-text">Upload Job Description (PDF, PNG, JPEG)</span>
-                            <span class="file-name" id="jdFileName">No file chosen</span>
-                        </div>
-                        <input type="file" id="jdUpload" multiple="true" name="job_description" accept=".pdf,.png,.jpeg" class="file-input" required>
-                    </label>
-                </div>
-            </div>
-        </div>
-        <div class="submit-container">
-             <a href="{% url 'bundles' %}" class="btn btn-outline-secondary me-2">
-                <i class="bi bi-lock-fill me-1"></i> More
+            {% if uploads_remaining <= 1 %}
+            <a href="{% url 'bundles' %}" class="btn btn-{% if uploads_remaining == 0 %}danger{% else %}warning{% endif %} btn-sm">
+                <i class="bi bi-bag-plus"></i> Get More
             </a>
-            <a href="{% url 'results' %}" class="btn btn-primary submit-btn"> Submit Documents</a>
+            {% endif %}
         </div>
-    </form>
-    <div id="uploadStatus" class="status-message"></div>
-</div>
-{% endblock %}
+
+        <form id="documentUploadForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-row">
+                <!-- CV Upload -->
+                <div class="form-column">
+                    <div class="file-upload-container">
+                        <label for="cvUpload" class="file-upload-label">
+                            <div class="file-upload-box" id="cvUploadBox">
+                                <span class="file-upload-icon">📄</span>
+                                <span class="file-upload-text">Upload CV</span>
+                                <span class="file-formats">PDF, DOC, DOCX</span>
+                                <span class="file-name" id="cvFileName">No file chosen</span>
+                            </div>
+                            <input type="file" id="cvUpload" name="cv" accept=".pdf,.doc,.docx" class="file-input" required>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Job Description Upload -->
+                <div class="form-column">
+                    <div class="file-upload-container">
+                        <label for="jdUpload" class="file-upload-label">
+                            <div class="file-upload-box" id="jdUploadBox">
+                                <span class="file-upload-icon">📋</span>
+                                <span class="file-upload-text">Upload Job Description</span>
+                                <span class="file-formats">PDF, PNG, JPEG</span>
+                                <span class="file-name" id="jdFileName">No file chosen</span>
+                            </div>
+                            <input type="file" id="jdUpload" name="job_description" accept=".pdf,.png,.jpeg,.jpg" class="file-input" required>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="submit-container">
+                <a href="{% url 'bundles' %}" class="btn btn-outline-secondary me-2">
+                    <i class="bi bi-gem me-1"></i> Get More Uploads
+                </a>
+                <button type="submit" class="btn btn-primary submit-btn" id="submitBtn" {% if uploads_remaining <= 0 %}disabled{% endif %}>
+                    <span class="btn-text">
+                        <i class="bi bi-send me-1"></i> Submit Documents
+                    </span>
+                    <span class="btn-loading" style="display: none;">
+                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                        Uploading...
+                    </span>
+                </button>
+            </div>
+        </form>
+
+        <div id="uploadStatus" class="status-message"></div>
+    </div>
+    {% endblock %}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/upload-tracker.js' %}"></script>
+    <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>
