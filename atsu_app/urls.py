@@ -6,7 +6,8 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('sign-up/', views.sign_up, name='sign_up'),
     path('bundles/', views.bundles, name='bundles'),
-    path('results/', views.bundles, name='results'),
-    path('logout/', LogoutView.as_view(next_page='index'), name='logout'),  # Built-in view
+    path('results/', views.results, name='results'),
+    path('logout/', views.user_logout, name='logout'),
+    path('dashboard/', views.dashboard, name='dashboard')
 
 ]

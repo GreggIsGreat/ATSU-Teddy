@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from .uploadTrack import UploadTracker, require_upload_quota
 
 """
     Credentials:
@@ -16,6 +17,12 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 def index(request: HttpRequest) -> HttpResponse:
+    return render(request, 'atsu_app/index.html')
+
+def results(request: HttpRequest) -> HttpResponse:
+    return render(request, 'atsu_app/results.html')
+
+def dashboard(request: HttpRequest) -> HttpResponse:
     return render(request, 'atsu_app/index.html')
 
 def user_logout(request: HttpRequest) -> HttpResponse:

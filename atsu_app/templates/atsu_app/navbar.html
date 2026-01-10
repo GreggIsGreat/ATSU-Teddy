@@ -20,6 +20,7 @@
         <div class="d-flex">
             {% if user.is_authenticated %}
                 <span class="btn btn-outline-secondary me-2 disabled">{{ user.username }}</span>
+                <a href="{% url 'dashboard' %}" class="btn btn-primary submit-btn me-2"> Dashboard </a>
                 <a href="{% url 'logout' %}" class="btn btn me-2" id="signInBtn">Logout</a>
             {% else %}
                 <button type="button" class="btn btn me-2" id="signInBtn" data-bs-toggle="modal" data-bs-target="#authModal">
